@@ -22,6 +22,13 @@ class PhotoTopic(BaseModel):
 class Data(BaseModel):
     photo: PhotoTopic
 
+class Inference(BaseModel):
+    user: int
+    src: List[str]
+    src_marked: List[str]
+
+broker_send = broker.publisher("photo_out")
+
 
 @broker.subscriber("photo")
 async def handler(msg: Data):
@@ -37,3 +44,10 @@ async def handler(msg: Data):
     query = f"UPDATE result SET result = $2 WHERE id = $1"
     await conn.execute(query,update_data["id"], update_data["result"] )
     await conn.close()
+    src_marked = [item['marked_name'] for item in output]
+    await broker_send.publish(
+        Inference(user=msg.photo.user,
+                  src=msg.photo.photo,
+                  src_marked=src_marked),
+        topic="photo_out"
+    )
