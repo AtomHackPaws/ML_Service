@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  ml:
+    container_name: ml
+    ports:
+      - 801:801
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - atom-dev
+
+networks:
+  atom-dev:
+    external: true

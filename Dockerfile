@@ -21,3 +21,5 @@ RUN for req in $(cat requirements.txt); do pip3 install $req; done
 RUN rm requirements.txt
 
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
+
+COPY . .
