@@ -1,10 +1,12 @@
 from io import BytesIO
+import io
 from typing import List
 from PIL import Image
 import numpy as np
 import cv2
 import os
 from app.YOLO.yolo import YOLO
+from PIL import Image
 
 from app.S3.S3Service import S3Service
 import asyncpg
@@ -35,9 +37,18 @@ class Service:
                 labels, scores = self.model.defects_info(detects)
                 img_det = self.model.draw(img, detects)
                 
-                marked_name = name.split('.')[0] + "_marked." + name.split(".")[-1]
+                marked_name = name.split('.')[0] + "_marked." + "png"
 
-                await S3Service.put_object(marked_name, img_det.tobytes())
+                img_det = img_det.astype(np.uint8)
+                
+                image_pil = Image.fromarray(img_det)
+
+                # Преобразование объекта PIL в байты
+                img_byte_arr = io.BytesIO()
+                image_pil.save(img_byte_arr, format='PNG')
+                img_bytes = img_byte_arr.getvalue()
+                
+                await S3Service.put_object(marked_name,  img_bytes )
                 
                 output.append({
                     "name": name,
