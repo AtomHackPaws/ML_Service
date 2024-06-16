@@ -1,0 +1,9 @@
+input/
+output/
+*.onnx
+*.jpg
+*.png
+*.txt
+runs/
+v8/
+__pycache__
